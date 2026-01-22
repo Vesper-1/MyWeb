@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Home - DevHub{% endblock %}
+{% block description %}
+    {% if lang == 'zh' %}
+        欢迎来到我的个人网站 - 分享技术、金融与生活见解
+    {% else %}
+        Welcome to my personal site - sharing tech, finance, and life insights
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="avatar-wrapper">
+                <img src="{{ url_for('static', filename='img/avatar.jpg') }}"
+                     alt="Avatar"
+                     class="avatar"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="avatar-placeholder" style="display: none;">
+                    <span>👨‍💻</span>
+                </div>
+            </div>
+
+            <h1 class="hero-title">
+                {% if lang == 'zh' %}
+                    你好，我是 <span class="highlight">开发者</span>
+                {% else %}
+                    Hi, I'm a <span class="highlight">Developer</span>
+                {% endif %}
+            </h1>
+
+            <p class="hero-subtitle">
+                {% if lang == 'zh' %}
+                    全栈工程师 | 金融科技爱好者 | 开源贡献者
+                {% else %}
+                    Full Stack Engineer | FinTech Enthusiast | Open Source Contributor
+                {% endif %}
+            </p>
+
+            <p class="hero-description">
+                {% if lang == 'zh' %}
+                    热衷于用技术解决实际问题，专注于 Web 开发、量化交易和 AI 应用。
+                    在这里分享我的学习笔记、项目经验和工具推荐。
+                {% else %}
+                    Passionate about solving real-world problems with technology.
+                    Focused on web development, quantitative trading, and AI applications.
+                    Sharing my learning notes, project experiences, and tool recommendations here.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="cards-section">
+    <div class="container">
+        <div class="cards-grid">
+            <!-- Blog Card -->
+            <a href="/{{ lang }}/blog/" class="feature-card" data-tilt>
+                <div class="card-icon">📝</div>
+                <h3 class="card-title">{{ t.blog }}</h3>
+                <p class="card-description">
+                    {% if lang == 'zh' %}
+                        技术文章、金融见解、生活随笔
+                    {% else %}
+                        Tech articles, finance insights, life notes
+                    {% endif %}
+                </p>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <!-- Toolbox Card -->
+            <a href="/{{ lang }}/toolbox/" class="feature-card" data-tilt>
+                <div class="card-icon">🛠️</div>
+                <h3 class="card-title">{{ t.toolbox }}</h3>
+                <p class="card-description">
+                    {% if lang == 'zh' %}
+                        我的工具箱、作品展示、资源推荐
+                    {% else %}
+                        My toolbox, projects, and recommendations
+                    {% endif %}
+                </p>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <!-- Links Card -->
+            <a href="https://github.com/yourusername" class="feature-card" data-tilt target="_blank" rel="noopener">
+                <div class="card-icon">🔗</div>
+                <h3 class="card-title">{{ t.links }}</h3>
+                <p class="card-description">
+                    {% if lang == 'zh' %}
+                        社交媒体、开源项目、联系方式
+                    {% else %}
+                        Social media, open source, contact info
+                    {% endif %}
+                </p>
+                <div class="card-arrow">↗</div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

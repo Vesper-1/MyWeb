@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.blog }} - DevHub{% endblock %}
+{% block description %}
+    {% if lang == 'zh' %}
+        浏览所有博客文章 - 技术、金融、生活分享
+    {% else %}
+        Browse all blog posts - tech, finance, and life sharing
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="blog-page">
+    <div class="container">
+        <header class="page-header">
+            <h1 class="page-title">{{ t.blog }}</h1>
+            <p class="page-subtitle">
+                {% if lang == 'zh' %}
+                    探索技术世界，分享实践经验
+                {% else %}
+                    Explore tech world, share practical experience
+                {% endif %}
+            </p>
+        </header>
+
+        <!-- Category Filter -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-category="all">{{ t.all }}</button>
+            <button class="filter-btn" data-category="finance">{{ t.finance }}</button>
+            <button class="filter-btn" data-category="tech">{{ t.tech }}</button>
+            <button class="filter-btn" data-category="misc">{{ t.misc }}</button>
+        </div>
+
+        <!-- Posts Grid -->
+        <div class="posts-grid">
+            {% if posts %}
+                {% for post in posts %}
+                <article class="post-card" data-category="{{ post.category }}">
+                    {% if post.cover_image %}
+                    <div class="post-cover">
+                        <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+                    </div>
+                    {% endif %}
+
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="post-category category-{{ post.category }}">
+                                {{ t[post.category] }}
+                            </span>
+                            <span class="post-date">{{ post.created }}</span>
+                        </div>
+
+                        <h2 class="post-title">
+                            <a href="/{{ lang }}/blog/{{ post.slug }}/">{{ post.title }}</a>
+                        </h2>
+
+                        <p class="post-summary">{{ post.summary }}</p>
+
+                        <div class="post-footer">
+                            <a href="/{{ lang }}/blog/{{ post.slug }}/" class="read-more">
+                                {{ t.read_more }} →
+                            </a>
+
+                            {% if post.external_links %}
+                            <div class="external-links">
+                                {% for link in post.external_links %}
+                                <a href="{{ link.url }}" target="_blank" rel="noopener" class="external-link" title="{{ link.platform }}">
+                                    {% if link.platform == 'medium' %}📄
+                                    {% elif link.platform == 'github' %}💻
+                                    {% elif link.platform == 'youtube' %}▶️
+                                    {% else %}🔗
+                                    {% endif %}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if post.updated %}
+                        <div class="post-updated">
+                            <small>{{ t.updated }}: {{ post.updated }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>
+                        {% if lang == 'zh' %}
+                            暂无文章，敬请期待...
+                        {% else %}
+                            No posts yet, stay tuned...
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Category filtering
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const category = this.dataset.category;
+            const posts = document.querySelectorAll('.post-card');
+
+            posts.forEach(post => {
+                if (category === 'all' || post.dataset.category === category) {
+                    post.style.display = 'block';
+                    setTimeout(() => post.classList.add('visible'), 10);
+                } else {
+                    post.classList.remove('visible');
+                    setTimeout(() => post.style.display = 'none', 300);
+                }
+            });
+        });
+    });
+
+    // Initial animation
+    document.querySelectorAll('.post-card').forEach((card, index) => {
+        setTimeout(() => card.classList.add('visible'), index * 100);
+    });
+</script>
+{% endblock %}

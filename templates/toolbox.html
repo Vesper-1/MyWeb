@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.toolbox }} - DevHub{% endblock %}
+{% block description %}
+    {% if lang == 'zh' %}
+        我的工具箱 - 开发工具、效率工具、AI工具推荐和个人作品展示
+    {% else %}
+        My Toolbox - Dev tools, productivity tools, AI tools and my projects
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="toolbox-page">
+    <div class="container">
+        <header class="page-header">
+            <h1 class="page-title">{{ t.toolbox }}</h1>
+            <p class="page-subtitle">
+                {% if lang == 'zh' %}
+                    分享我常用的工具和个人作品
+                {% else %}
+                    Sharing my favorite tools and personal projects
+                {% endif %}
+            </p>
+        </header>
+
+        <!-- Recommended Tools Section -->
+        <section class="toolbox-section">
+            <h2 class="section-title">{{ t.recommended_tools }}</h2>
+
+            <!-- Development Tools -->
+            <div class="tools-category">
+                <h3 class="category-title">
+                    <span class="category-icon">💻</span>
+                    {{ t.dev }}
+                </h3>
+                <div class="tools-grid">
+                    {% for tool in tools.dev %}
+                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="tool-card">
+                        <h4 class="tool-name">{{ tool.name }}</h4>
+                        <p class="tool-desc">
+                            {% if lang == 'zh' %}{{ tool.desc_zh }}{% else %}{{ tool.desc_en }}{% endif %}
+                        </p>
+                        <span class="tool-link">Visit →</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Productivity Tools -->
+            <div class="tools-category">
+                <h3 class="category-title">
+                    <span class="category-icon">⚡</span>
+                    {{ t.productivity }}
+                </h3>
+                <div class="tools-grid">
+                    {% for tool in tools.productivity %}
+                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="tool-card">
+                        <h4 class="tool-name">{{ tool.name }}</h4>
+                        <p class="tool-desc">
+                            {% if lang == 'zh' %}{{ tool.desc_zh }}{% else %}{{ tool.desc_en }}{% endif %}
+                        </p>
+                        <span class="tool-link">Visit →</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Finance Tools -->
+            <div class="tools-category">
+                <h3 class="category-title">
+                    <span class="category-icon">💰</span>
+                    {{ t.finance }}
+                </h3>
+                <div class="tools-grid">
+                    {% for tool in tools.finance %}
+                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="tool-card">
+                        <h4 class="tool-name">{{ tool.name }}</h4>
+                        <p class="tool-desc">
+                            {% if lang == 'zh' %}{{ tool.desc_zh }}{% else %}{{ tool.desc_en }}{% endif %}
+                        </p>
+                        <span class="tool-link">Visit →</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- AI Tools -->
+            <div class="tools-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🤖</span>
+                    {{ t.ai }}
+                </h3>
+                <div class="tools-grid">
+                    {% for tool in tools.ai %}
+                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="tool-card">
+                        <h4 class="tool-name">{{ tool.name }}</h4>
+                        <p class="tool-desc">
+                            {% if lang == 'zh' %}{{ tool.desc_zh }}{% else %}{{ tool.desc_en }}{% endif %}
+                        </p>
+                        <span class="tool-link">Visit →</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- My Projects Section -->
+        <section class="toolbox-section">
+            <h2 class="section-title">{{ t.my_projects }}</h2>
+            <div class="projects-grid">
+                {% for project in projects %}
+                <a href="{{ project.url }}" target="_blank" rel="noopener" class="project-card">
+                    <div class="project-icon">🚀</div>
+                    <h3 class="project-name">{{ project.name }}</h3>
+                    <p class="project-desc">
+                        {% if lang == 'zh' %}{{ project.desc_zh }}{% else %}{{ project.desc_en }}{% endif %}
+                    </p>
+                    <span class="project-link">View Project ↗</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Future Section -->
+        <section class="toolbox-section">
+            <h2 class="section-title">{{ t.future }}</h2>
+            <div class="future-placeholder">
+                <div class="future-icon">🔮</div>
+                <p class="future-text">{{ t.coming_soon }}</p>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
