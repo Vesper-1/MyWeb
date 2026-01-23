@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - DevHub{% endblock %}
+{% block description %}{{ post.summary }}{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.summary }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Markdown content styles */
+    .article-content {
+        line-height: 1.8;
+    }
+    .article-content h1, .article-content h2, .article-content h3 {
+        margin-top: 2em;
+        margin-bottom: 0.5em;
+        color: var(--neon-cyan);
+    }
+    .article-content h1 { font-size: 2em; }
+    .article-content h2 { font-size: 1.5em; }
+    .article-content h3 { font-size: 1.25em; }
+    .article-content p {
+        margin-bottom: 1.2em;
+    }
+    .article-content code {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+        color: var(--neon-pink);
+    }
+    .article-content pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1em;
+        border-radius: 8px;
+        overflow-x: auto;
+        border-left: 3px solid var(--neon-cyan);
+    }
+    .article-content pre code {
+        background: none;
+        padding: 0;
+        color: #e0e0e0;
+    }
+    .article-content ul, .article-content ol {
+        margin-left: 2em;
+        margin-bottom: 1.2em;
+    }
+    .article-content li {
+        margin-bottom: 0.5em;
+    }
+    .article-content blockquote {
+        border-left: 4px solid var(--neon-purple);
+        padding-left: 1em;
+        margin: 1.5em 0;
+        font-style: italic;
+        color: #b0b0b0;
+    }
+    .article-content a {
+        color: var(--neon-cyan);
+        text-decoration: underline;
+    }
+    .article-content a:hover {
+        color: var(--neon-pink);
+    }
+    .article-content img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 1.5em 0;
+    }
+    .article-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5em 0;
+    }
+    .article-content table th,
+    .article-content table td {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.5em 1em;
+        text-align: left;
+    }
+    .article-content table th {
+        background: rgba(255, 255, 255, 0.05);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-page">
+    <div class="container">
+        <!-- Back Button -->
+        <a href="/{{ lang }}/blog/" class="back-link">← {{ t.blog }}</a>
+
+        <!-- Fallback Warning -->
+        {% if fallback_lang %}
+        <div class="fallback-notice">
+            {% if fallback_lang == 'zh' %}
+                ⚠️ {{ t.english_unavailable }}
+            {% else %}
+                ⚠️ {{ t.chinese_unavailable }}
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Article Header -->
+        <header class="article-header">
+            <div class="article-meta">
+                <span class="article-category category-{{ post.category }}">
+                    {{ t[post.category] }}
+                </span>
+                <span class="article-date">{{ post.created }}</span>
+                {% if post.updated %}
+                <span class="article-updated">{{ t.updated }}: {{ post.updated }}</span>
+                {% endif %}
+            </div>
+
+            <h1 class="article-title">{{ post.title }}</h1>
+
+            {% if post.summary %}
+            <p class="article-summary">{{ post.summary }}</p>
+            {% endif %}
+
+            {% if post.external_links %}
+            <div class="article-external-links">
+                <span>{{ t.external_links }}:</span>
+                {% for link in post.external_links %}
+                <a href="{{ link.url }}" target="_blank" rel="noopener" class="external-link-btn">
+                    {{ link.platform }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- Article Cover -->
+        {% if post.cover_image %}
+        <div class="article-cover">
+            <img src="{{ url_for('static', filename=post.cover_image) }}" alt="{{ post.title }}">
+        </div>
+        {% endif %}
+
+        <!-- Article Content -->
+        <article class="article-content">
+            {{ post.content|safe }}
+        </article>
+
+        <!-- Article Footer -->
+        <footer class="article-footer">
+            <a href="/{{ lang }}/blog/" class="back-to-blog">
+                ← {{ t.blog }}
+            </a>
+        </footer>
+    </div>
+</div>
+{% endblock %}

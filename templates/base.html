@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Personal Site{% endblock %}</title>
+    <meta name="description" content="{% block description %}A personal website with blog, toolbox, and more{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}Personal Site{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}A personal website with blog, toolbox, and more{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="nav-brand">
+                <a href="/{{ lang }}/">
+                    <span class="logo">💻</span>
+                    <span class="brand-text">DevHub</span>
+                </a>
+            </div>
+
+            <div class="nav-links">
+                <a href="/{{ lang }}/" class="nav-link">{{ t.home }}</a>
+                <a href="/{{ lang }}/blog/" class="nav-link">{{ t.blog }}</a>
+                <a href="/{{ lang }}/toolbox/" class="nav-link">{{ t.toolbox }}</a>
+
+                <!-- Language Switcher -->
+                <div class="lang-switcher">
+                    {% for l in supported_langs %}
+                        {% if l != lang %}
+                            <button class="lang-btn" data-lang="{{ l }}" onclick="switchLanguage('{{ l }}')">
+                                {{ l.upper() }}
+                            </button>
+                        {% else %}
+                            <span class="lang-current">{{ l.upper() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {{ current_year }} DevHub. Built with Flask & ❤️</p>
+            <div class="footer-links">
+                <a href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://twitter.com/yourusername" target="_blank" rel="noopener">Twitter</a>
+                <a href="mailto:your@email.com">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
