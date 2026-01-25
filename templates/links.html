@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Links - DevHub{% endblock %}
+{% block description %}
+    {% if lang == 'zh' %}
+        我的社交媒体和联系方式
+    {% else %}
+        My social media and contact information
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="links-page">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title glitch-text" data-text="{% if lang == 'zh' %}社交链接{% else %}Social Links{% endif %}">
+                {% if lang == 'zh' %}社交链接{% else %}Social Links{% endif %}
+            </h1>
+            <p class="page-subtitle">
+                {% if lang == 'zh' %}
+                    在这些平台找到我
+                {% else %}
+                    Find me on these platforms
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="social-links-grid">
+            <!-- GitHub -->
+            <a href="https://github.com/Vesper-1" class="social-card github-card" target="_blank" rel="noopener">
+                <div class="social-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </div>
+                <div class="social-info">
+                    <h3 class="social-name">GitHub</h3>
+                    <p class="social-handle">@Vesper-1</p>
+                    <p class="social-desc">
+                        {% if lang == 'zh' %}开源项目和代码{% else %}Open source projects & code{% endif %}
+                    </p>
+                </div>
+                <div class="social-arrow">→</div>
+            </a>
+
+            <!-- X (Twitter) -->
+            <a href="https://x.com/757Thales" class="social-card twitter-card" target="_blank" rel="noopener">
+                <div class="social-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </div>
+                <div class="social-info">
+                    <h3 class="social-name">X (Twitter)</h3>
+                    <p class="social-handle">@757Thales</p>
+                    <p class="social-desc">
+                        {% if lang == 'zh' %}想法和动态{% else %}Thoughts and updates{% endif %}
+                    </p>
+                </div>
+                <div class="social-arrow">→</div>
+            </a>
+
+            <!-- Xiaohongshu (Little Red Book) -->
+            <a href="#" class="social-card xiaohongshu-card" onclick="alert('{% if lang == 'zh' %}小红书：请搜索我的用户名{% else %}Xiaohongshu: Please search for my username{% endif %}'); return false;">
+                <div class="social-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span class="xiaohongshu-text">小红书</span>
+                </div>
+                <div class="social-info">
+                    <h3 class="social-name">{% if lang == 'zh' %}小红书{% else %}Xiaohongshu{% endif %}</h3>
+                    <p class="social-handle">{% if lang == 'zh' %}搜索关注我{% else %}Search to follow{% endif %}</p>
+                    <p class="social-desc">
+                        {% if lang == 'zh' %}生活分享和笔记{% else %}Life sharing and notes{% endif %}
+                    </p>
+                </div>
+                <div class="social-arrow">→</div>
+            </a>
+
+            <!-- WeChat -->
+            <div class="social-card wechat-card" onclick="toggleWechatQR()">
+                <div class="social-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+                        <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89l-.002-.033zm-2.004 2.209c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+                    </svg>
+                </div>
+                <div class="social-info">
+                    <h3 class="social-name">{% if lang == 'zh' %}微信{% else %}WeChat{% endif %}</h3>
+                    <p class="social-handle">{% if lang == 'zh' %}点击查看二维码{% else %}Click to view QR code{% endif %}</p>
+                    <p class="social-desc">
+                        {% if lang == 'zh' %}扫码添加好友{% else %}Scan to add friend{% endif %}
+                    </p>
+                </div>
+                <div class="social-arrow">↓</div>
+            </div>
+        </div>
+
+        <!-- WeChat QR Code Modal -->
+        <div id="wechat-qr-modal" class="qr-modal" style="display: none;">
+            <div class="qr-modal-content">
+                <button class="qr-close-btn" onclick="toggleWechatQR()">&times;</button>
+                <h3>{% if lang == 'zh' %}微信二维码{% else %}WeChat QR Code{% endif %}</h3>
+                <div class="qr-image-container">
+                    <img src="{{ url_for('static', filename='img/wechat-qr.png') }}"
+                         alt="WeChat QR Code"
+                         class="qr-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="qr-placeholder" style="display: none;">
+                        <p>{% if lang == 'zh' %}二维码图片未上传{% else %}QR code image not uploaded{% endif %}</p>
+                        <p class="qr-hint">{% if lang == 'zh' %}请上传 wechat-qr.png 到 static/img/ 目录{% else %}Please upload wechat-qr.png to static/img/ folder{% endif %}</p>
+                    </div>
+                </div>
+                <p class="qr-instruction">
+                    {% if lang == 'zh' %}打开微信扫一扫添加好友{% else %}Open WeChat and scan to add friend{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Links Page Styles */
+.links-page {
+    padding: var(--spacing-lg) 0;
+    min-height: 80vh;
+}
+
+.glitch-text {
+    position: relative;
+    animation: glitchText 3s infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--neon-pink);
+    clip-path: inset(44% 0 56% 0);
+    animation: glitchBefore 3s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: 2px 0 var(--neon-cyan);
+    clip-path: inset(58% 0 42% 0);
+    animation: glitchAfter 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitchText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+}
+
+@keyframes glitchBefore {
+    0% { clip-path: inset(36% 0 56% 0); }
+    10% { clip-path: inset(12% 0 72% 0); }
+    20% { clip-path: inset(85% 0 0% 0); }
+    30% { clip-path: inset(44% 0 32% 0); }
+    40% { clip-path: inset(91% 0 4% 0); }
+    50% { clip-path: inset(21% 0 53% 0); }
+    60% { clip-path: inset(66% 0 18% 0); }
+    70% { clip-path: inset(45% 0 37% 0); }
+    80% { clip-path: inset(8% 0 76% 0); }
+    90% { clip-path: inset(62% 0 12% 0); }
+    100% { clip-path: inset(49% 0 31% 0); }
+}
+
+@keyframes glitchAfter {
+    0% { clip-path: inset(58% 0 42% 0); }
+    10% { clip-path: inset(28% 0 64% 0); }
+    20% { clip-path: inset(3% 0 87% 0); }
+    30% { clip-path: inset(72% 0 14% 0); }
+    40% { clip-path: inset(34% 0 49% 0); }
+    50% { clip-path: inset(81% 0 7% 0); }
+    60% { clip-path: inset(19% 0 62% 0); }
+    70% { clip-path: inset(55% 0 28% 0); }
+    80% { clip-path: inset(41% 0 43% 0); }
+    90% { clip-path: inset(68% 0 21% 0); }
+    100% { clip-path: inset(37% 0 45% 0); }
+}
+
+.social-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.social-card {
+    background: var(--bg-card);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.social-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.social-card:hover::before {
+    left: 100%;
+}
+
+.social-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* GitHub Card */
+.github-card {
+    border-color: rgba(110, 84, 148, 0.5);
+}
+.github-card:hover {
+    border-color: #6e5494;
+    box-shadow: 0 0 30px rgba(110, 84, 148, 0.4);
+}
+.github-card .social-icon {
+    color: #f0f0f0;
+}
+
+/* Twitter/X Card */
+.twitter-card {
+    border-color: rgba(0, 255, 255, 0.3);
+}
+.twitter-card:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+}
+.twitter-card .social-icon {
+    color: var(--neon-cyan);
+}
+
+/* Xiaohongshu Card */
+.xiaohongshu-card {
+    border-color: rgba(255, 45, 85, 0.3);
+}
+.xiaohongshu-card:hover {
+    border-color: #ff2d55;
+    box-shadow: 0 0 30px rgba(255, 45, 85, 0.4);
+}
+.xiaohongshu-card .social-icon {
+    color: #ff2d55;
+    position: relative;
+}
+.xiaohongshu-text {
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* WeChat Card */
+.wechat-card {
+    border-color: rgba(0, 255, 136, 0.3);
+}
+.wechat-card:hover {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+}
+.wechat-card .social-icon {
+    color: var(--neon-green);
+}
+
+.social-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-info {
+    flex: 1;
+}
+
+.social-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.social-handle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.social-desc {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.social-arrow {
+    font-size: 1.5rem;
+    color: var(--neon-pink);
+    transition: transform 0.3s ease;
+}
+
+.social-card:hover .social-arrow {
+    transform: translateX(5px);
+}
+
+/* QR Modal */
+.qr-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.qr-modal-content {
+    background: var(--bg-card);
+    border: 2px solid var(--neon-green);
+    border-radius: 20px;
+    padding: var(--spacing-lg);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.3);
+}
+
+.qr-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.qr-close-btn:hover {
+    color: var(--neon-pink);
+}
+
+.qr-modal-content h3 {
+    color: var(--neon-green);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.5rem;
+}
+
+.qr-image-container {
+    background: white;
+    border-radius: 12px;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.qr-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.qr-placeholder {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    background: #f0f0f0;
+    border-radius: 8px;
+    padding: var(--spacing-md);
+}
+
+.qr-hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.qr-instruction {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .social-links-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .social-card {
+        padding: var(--spacing-sm);
+    }
+
+    .social-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .social-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+}
+</style>
+
+<script>
+function toggleWechatQR() {
+    const modal = document.getElementById('wechat-qr-modal');
+    if (modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    } else {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('wechat-qr-modal');
+        if (modal.style.display === 'flex') {
+            toggleWechatQR();
+        }
+    }
+});
+
+// Close modal on background click
+document.getElementById('wechat-qr-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        toggleWechatQR();
+    }
+});
+</script>
+{% endblock %}
