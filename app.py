@@ -204,6 +204,14 @@ def post(lang, slug):
     return render_template('post.html', post=post_data, fallback_lang=fallback_lang)
 
 
+@app.route('/<lang>/links/')
+def links(lang):
+    """Social links page."""
+    if lang not in SUPPORTED_LANGS:
+        abort(404)
+    return render_template('links.html')
+
+
 @app.route('/<lang>/toolbox/')
 def toolbox(lang):
     """Toolbox page."""
@@ -261,6 +269,7 @@ def sitemap():
         pages.append(f'{base_url}/{lang}/')
         pages.append(f'{base_url}/{lang}/blog/')
         pages.append(f'{base_url}/{lang}/toolbox/')
+        pages.append(f'{base_url}/{lang}/links/')
 
     # Blog posts
     for lang in SUPPORTED_LANGS:
