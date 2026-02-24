@@ -401,13 +401,8 @@
         alertMsg: LANG === 'zh' ? '金额和价格必须大于 0' : 'Amount and price must be greater than 0',
     };
 
-    // ── Initial sample data ──
-    let entries = [
-        { id: 1, date: '2023-01-01', investAmount: 500, btcPrice: 16600,  btcAmount: 0.03012048 },
-        { id: 2, date: '2023-02-01', investAmount: 500, btcPrice: 23100,  btcAmount: 0.02164502 },
-        { id: 3, date: '2023-03-01', investAmount: 500, btcPrice: 23500,  btcAmount: 0.02127660 },
-        { id: 4, date: '2023-04-01', investAmount: 500, btcPrice: 28400,  btcAmount: 0.01760563 },
-    ];
+    // ── Initial data ──
+    let entries = [];
     let currentPrice = 65000;
 
     // ── Helpers ──
