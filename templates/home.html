@@ -100,4 +100,27 @@
         </div>
     </div>
 </div>
+
+<!-- New Tool Spotlight -->
+<div class="new-tool-section">
+    <div class="container">
+        <div class="new-tool-banner">
+            <div class="new-tool-badge">{{ t.new_tool }}</div>
+            <div class="new-tool-icon">₿</div>
+            <div class="new-tool-body">
+                <h3 class="new-tool-title">
+                    {% if lang == 'zh' %}BTC 定投 (DCA) 记录表{% else %}BTC DCA Tracker{% endif %}
+                </h3>
+                <p class="new-tool-desc">
+                    {% if lang == 'zh' %}
+                        自动记录每笔比特币买入，实时计算平均成本、持仓市值与收益率
+                    {% else %}
+                        Track your Bitcoin purchases and instantly see your average cost, portfolio value &amp; P&amp;L
+                    {% endif %}
+                </p>
+            </div>
+            <a href="/{{ lang }}/toolbox/btc-dca/" class="new-tool-cta">{{ t.try_it }}</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

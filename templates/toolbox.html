@@ -104,6 +104,30 @@
             </div>
         </section>
 
+        <!-- Interactive Tools Section -->
+        <section class="toolbox-section">
+            <h2 class="section-title">{{ t.interactive_tools }}</h2>
+            <div class="projects-grid">
+                <a href="/{{ lang }}/toolbox/btc-dca/" class="project-card interactive-tool-card">
+                    <div class="project-icon">₿</div>
+                    <div class="new-badge">NEW</div>
+                    <h3 class="project-name">
+                        {% if lang == 'zh' %}BTC 定投记录表{% else %}BTC DCA Tracker{% endif %}
+                    </h3>
+                    <p class="project-desc">
+                        {% if lang == 'zh' %}
+                            记录每笔比特币定投，自动计算平均成本、持仓价值与盈亏
+                        {% else %}
+                            Track every BTC purchase. Auto-calculate average cost, portfolio value and P&amp;L
+                        {% endif %}
+                    </p>
+                    <span class="project-link">
+                        {% if lang == 'zh' %}立即使用 ↗{% else %}Open Tool ↗{% endif %}
+                    </span>
+                </a>
+            </div>
+        </section>
+
         <!-- My Projects Section -->
         <section class="toolbox-section">
             <h2 class="section-title">{{ t.my_projects }}</h2>

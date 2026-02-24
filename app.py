@@ -40,11 +40,14 @@ TRANSLATIONS = {
         'productivity': '效率工具',
         'ai': 'AI工具',
         'my_projects': '我的作品',
+        'interactive_tools': '互动工具',
         'future': '未来计划',
         'coming_soon': '敬请期待',
         'recommended_tools': '推荐工具',
         'english_unavailable': '英文版本暂未提供',
         'chinese_unavailable': '中文版本暂未提供',
+        'new_tool': '新工具上线',
+        'try_it': '立即体验 →',
     },
     'en': {
         'home': 'Home',
@@ -66,11 +69,14 @@ TRANSLATIONS = {
         'productivity': 'Productivity',
         'ai': 'AI Tools',
         'my_projects': 'My Projects',
+        'interactive_tools': 'Interactive Tools',
         'future': 'Future Plans',
         'coming_soon': 'Coming Soon',
         'recommended_tools': 'Recommended Tools',
         'english_unavailable': 'English version not available',
         'chinese_unavailable': 'Chinese version not available',
+        'new_tool': 'New Tool',
+        'try_it': 'Try It →',
     }
 }
 
@@ -258,6 +264,14 @@ def toolbox(lang):
     return render_template('toolbox.html', tools=tools, projects=projects)
 
 
+@app.route('/<lang>/toolbox/btc-dca/')
+def btc_dca(lang):
+    """BTC DCA Tracker tool page."""
+    if lang not in SUPPORTED_LANGS:
+        abort(404)
+    return render_template('btc_dca.html')
+
+
 @app.route('/sitemap.xml')
 def sitemap():
     """Generate sitemap."""
@@ -269,6 +283,7 @@ def sitemap():
         pages.append(f'{base_url}/{lang}/')
         pages.append(f'{base_url}/{lang}/blog/')
         pages.append(f'{base_url}/{lang}/toolbox/')
+        pages.append(f'{base_url}/{lang}/toolbox/btc-dca/')
         pages.append(f'{base_url}/{lang}/links/')
 
     # Blog posts
