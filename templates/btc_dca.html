@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if lang == 'zh' %}BTC 定投记录表{% else %}BTC DCA Tracker{% endif %} - DevHub
+{% endblock %}
+
+{% block description %}
+    {% if lang == 'zh' %}
+        比特币定投 (DCA) 记录工具 - 记录每笔买入，自动计算平均成本与实时收益
+    {% else %}
+        Bitcoin Dollar-Cost Averaging (DCA) Tracker - Record every purchase and calculate average cost and P&L
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ── Page Layout ── */
+    .dca-page { padding: 2rem 0 4rem; }
+
+    .dca-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .dca-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .dca-header h1 .btc-icon { color: #f97316; font-size: 1.6rem; }
+    .dca-header p { color: var(--text-secondary); margin-top: 0.4rem; font-size: 0.95rem; }
+
+    /* Current price input box */
+    .price-box {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--bg-secondary);
+        border: 1px solid rgba(0,255,255,0.15);
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+    }
+    .price-box label { color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; white-space: nowrap; }
+    .price-input-wrap { position: relative; }
+    .price-input-wrap span { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+    .price-input-wrap input {
+        background: var(--bg-primary);
+        border: 1px solid rgba(0,255,255,0.2);
+        border-radius: 8px;
+        color: #fff;
+        font-family: monospace;
+        padding: 0.35rem 0.5rem 0.35rem 1.4rem;
+        width: 130px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .price-input-wrap input:focus { border-color: #f97316; }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(0,255,255,0.12);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+    }
+    .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label .icon { font-size: 1.1rem; }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        font-family: monospace;
+        color: #fff;
+    }
+    .stat-value.value-positive { color: #34d399; }
+    .stat-value.value-negative { color: #f87171; }
+    .stat-value.value-orange { color: #f97316; }
+    .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .roi-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 99px;
+    }
+    .roi-positive { background: rgba(52,211,153,0.12); color: #34d399; }
+    .roi-negative { background: rgba(248,113,113,0.12); color: #f87171; }
+    .stat-sub { font-size: 0.8rem; color: var(--text-secondary); font-family: monospace; margin-top: 0.25rem; }
+
+    /* ── Add Form ── */
+    .dca-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(0,255,255,0.12);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .dca-card h2 { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 1rem; }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    .form-group { flex: 1; min-width: 160px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .input-wrap { position: relative; }
+    .input-wrap .input-icon {
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+    .dca-input {
+        width: 100%;
+        background: var(--bg-primary);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: #fff;
+        font-family: monospace;
+        padding: 0.6rem 0.75rem 0.6rem 2.2rem;
+        outline: none;
+        transition: border-color 0.2s;
+        font-size: 0.95rem;
+    }
+    .dca-input:focus { border-color: #f97316; }
+    .dca-input[type="date"] { font-family: inherit; }
+
+    .btn-add {
+        flex: 1;
+        min-width: 140px;
+        background: #f97316;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.65rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn-add:hover { background: #ea6c0a; box-shadow: 0 0 20px rgba(249,115,22,0.4); }
+
+    /* ── Table Section ── */
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        background: rgba(255,255,255,0.02);
+        border-radius: 16px 16px 0 0;
+    }
+    .table-header h2 { font-size: 1.05rem; font-weight: 600; color: #fff; }
+    .btn-export {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-primary);
+        border-radius: 8px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-export:hover { background: rgba(255,255,255,0.12); }
+
+    .dca-table-wrap {
+        background: var(--bg-card);
+        border: 1px solid rgba(0,255,255,0.12);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .dca-table { width: 100%; border-collapse: collapse; }
+    .dca-table thead tr { background: rgba(0,0,0,0.25); }
+    .dca-table th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+    .dca-table th.center, .dca-table td.center { text-align: center; }
+    .dca-table tbody tr { border-top: 1px solid rgba(255,255,255,0.05); transition: background 0.15s; }
+    .dca-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .dca-table td { padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-primary); }
+    .dca-table td.mono { font-family: monospace; }
+    .dca-table td.text-green { color: #34d399; }
+    .dca-table td.text-orange { color: #f97316; font-weight: 600; }
+
+    .empty-row td { padding: 2.5rem; text-align: center; color: var(--text-secondary); }
+
+    .btn-delete {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(255,255,255,0.25);
+        font-size: 1rem;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        transition: color 0.2s;
+        line-height: 1;
+    }
+    .btn-delete:hover { color: #f87171; }
+
+    /* Back link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--neon-cyan); }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .dca-header { flex-direction: column; }
+        .form-row { flex-direction: column; }
+        .form-group, .btn-add { min-width: 100%; }
+        .dca-table th:nth-child(3), .dca-table td:nth-child(3) { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dca-page">
+    <div class="container">
+
+        <!-- Back -->
+        <a href="/{{ lang }}/toolbox/" class="back-link">← {{ t.toolbox }}</a>
+
+        <!-- Header -->
+        <div class="dca-header">
+            <div>
+                <h1>
+                    <span class="btc-icon">₿</span>
+                    {% if lang == 'zh' %}比特币定投 (DCA) 记录表{% else %}Bitcoin DCA Tracker{% endif %}
+                </h1>
+                <p>
+                    {% if lang == 'zh' %}
+                        记录每一次买入，自动计算平均成本与实时收益。
+                    {% else %}
+                        Record every purchase and automatically calculate average cost and real-time P&amp;L.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="price-box">
+                <label for="current-price">
+                    {% if lang == 'zh' %}当前 BTC 价格 (USD):{% else %}Current BTC Price (USD):{% endif %}
+                </label>
+                <div class="price-input-wrap">
+                    <span>$</span>
+                    <input type="number" id="current-price" value="65000" min="0" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label"><span class="icon">💼</span>
+                    {% if lang == 'zh' %}总投入本金{% else %}Total Invested{% endif %}
+                </div>
+                <div class="stat-value" id="stat-invested">—</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label"><span class="icon">₿</span>
+                    {% if lang == 'zh' %}总计持有 BTC{% else %}Total BTC Held{% endif %}
+                </div>
+                <div class="stat-value value-orange" id="stat-btc">—</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label"><span class="icon">📊</span>
+                    {% if lang == 'zh' %}平均持仓成本{% else %}Avg Cost Basis{% endif %}
+                </div>
+                <div class="stat-value" id="stat-avg">—</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label"><span class="icon">💰</span>
+                        {% if lang == 'zh' %}当前总价值{% else %}Current Value{% endif %}
+                    </div>
+                    <span class="roi-badge roi-positive" id="stat-roi">+0.00%</span>
+                </div>
+                <div class="stat-value value-positive" id="stat-value">—</div>
+                <div class="stat-sub" id="stat-pl"></div>
+            </div>
+        </div>
+
+        <!-- Add Form -->
+        <div class="dca-card">
+            <h2>{% if lang == 'zh' %}添加新定投记录{% else %}Add New Entry{% endif %}</h2>
+            <form id="add-form" class="form-row">
+                <div class="form-group">
+                    <label for="new-date">{% if lang == 'zh' %}定投日期{% else %}Date{% endif %}</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📅</span>
+                        <input type="date" id="new-date" class="dca-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="new-invest">{% if lang == 'zh' %}投入金额 (USD){% else %}Amount (USD){% endif %}</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">$</span>
+                        <input type="number" id="new-invest" class="dca-input" step="0.01" min="0.01"
+                               placeholder="{% if lang == 'zh' %}例如: 500{% else %}e.g. 500{% endif %}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="new-price">{% if lang == 'zh' %}买入时 BTC 价格{% else %}BTC Price at Purchase{% endif %}</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">₿</span>
+                        <input type="number" id="new-price" class="dca-input" step="0.01" min="0.01"
+                               placeholder="{% if lang == 'zh' %}例如: 65000{% else %}e.g. 65000{% endif %}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn-add">
+                        + {% if lang == 'zh' %}记录一笔{% else %}Add Entry{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="dca-table-wrap">
+            <div class="table-header">
+                <h2>{% if lang == 'zh' %}历史定投明细{% else %}Purchase History{% endif %}</h2>
+                <button class="btn-export" id="export-csv">
+                    ⬇ {% if lang == 'zh' %}导出 CSV{% else %}Export CSV{% endif %}
+                </button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="dca-table">
+                    <thead>
+                        <tr>
+                            <th>{% if lang == 'zh' %}日期{% else %}Date{% endif %}</th>
+                            <th>{% if lang == 'zh' %}投入金额{% else %}Amount{% endif %}</th>
+                            <th>{% if lang == 'zh' %}买入时单价{% else %}BTC Price{% endif %}</th>
+                            <th>{% if lang == 'zh' %}获得 BTC{% else %}BTC Received{% endif %}</th>
+                            <th class="center">{% if lang == 'zh' %}操作{% else %}Action{% endif %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entries-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    // ── i18n strings injected from Jinja ──
+    const LANG = '{{ lang }}';
+    const i18n = {
+        empty:  LANG === 'zh' ? '暂无记录，请在上方添加你的第一笔定投' : 'No entries yet. Add your first purchase above.',
+        plLabel: LANG === 'zh' ? '盈亏:' : 'P&L:',
+        csvHeaders: LANG === 'zh'
+            ? '日期,投入金额(USD),买入时BTC价格(USD),获得BTC数量'
+            : 'Date,Amount(USD),BTC Price(USD),BTC Received',
+        alertMsg: LANG === 'zh' ? '金额和价格必须大于 0' : 'Amount and price must be greater than 0',
+    };
+
+    // ── Initial sample data ──
+    let entries = [
+        { id: 1, date: '2023-01-01', investAmount: 500, btcPrice: 16600,  btcAmount: 0.03012048 },
+        { id: 2, date: '2023-02-01', investAmount: 500, btcPrice: 23100,  btcAmount: 0.02164502 },
+        { id: 3, date: '2023-03-01', investAmount: 500, btcPrice: 23500,  btcAmount: 0.02127660 },
+        { id: 4, date: '2023-04-01', investAmount: 500, btcPrice: 28400,  btcAmount: 0.01760563 },
+    ];
+    let currentPrice = 65000;
+
+    // ── Helpers ──
+    const fmtUSD   = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+    const fmtCrypto = v => v.toFixed(8);
+
+    function computeStats() {
+        let totalInvested = 0, totalBtc = 0;
+        entries.forEach(e => { totalInvested += e.investAmount; totalBtc += e.btcAmount; });
+        const avgPrice    = totalBtc > 0 ? totalInvested / totalBtc : 0;
+        const currentValue = totalBtc * currentPrice;
+        const profitLoss  = currentValue - totalInvested;
+        const roi         = totalInvested > 0 ? (profitLoss / totalInvested) * 100 : 0;
+        return { totalInvested, totalBtc, avgPrice, currentValue, profitLoss, roi };
+    }
+
+    // ── Render stats ──
+    function renderStats() {
+        const s = computeStats();
+        document.getElementById('stat-invested').textContent = fmtUSD(s.totalInvested);
+        document.getElementById('stat-btc').textContent      = fmtCrypto(s.totalBtc);
+        document.getElementById('stat-avg').textContent      = fmtUSD(s.avgPrice);
+
+        const valueEl = document.getElementById('stat-value');
+        valueEl.textContent  = fmtUSD(s.currentValue);
+        valueEl.className    = 'stat-value ' + (s.roi >= 0 ? 'value-positive' : 'value-negative');
+
+        const roiEl = document.getElementById('stat-roi');
+        roiEl.textContent = (s.roi >= 0 ? '+' : '') + s.roi.toFixed(2) + '%';
+        roiEl.className   = 'roi-badge ' + (s.roi >= 0 ? 'roi-positive' : 'roi-negative');
+
+        document.getElementById('stat-pl').textContent =
+            i18n.plLabel + ' ' + (s.profitLoss >= 0 ? '+' : '') + fmtUSD(s.profitLoss);
+    }
+
+    // ── Render table ──
+    function renderTable() {
+        const tbody = document.getElementById('entries-tbody');
+        if (entries.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${i18n.empty}</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = entries.map(e => `
+            <tr>
+                <td>${e.date}</td>
+                <td class="mono text-green">${fmtUSD(e.investAmount)}</td>
+                <td class="mono">${fmtUSD(e.btcPrice)}</td>
+                <td class="mono text-orange">+${fmtCrypto(e.btcAmount)}</td>
+                <td class="center">
+                    <button class="btn-delete" data-id="${e.id}" title="${LANG === 'zh' ? '删除' : 'Delete'}">🗑</button>
+                </td>
+            </tr>
+        `).join('');
+
+        tbody.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                entries = entries.filter(e => e.id !== parseInt(btn.dataset.id));
+                render();
+            });
+        });
+    }
+
+    function render() { renderStats(); renderTable(); }
+
+    // ── Bind events ──
+    document.getElementById('current-price').addEventListener('input', function () {
+        currentPrice = parseFloat(this.value) || 0;
+        renderStats();
+    });
+
+    document.getElementById('add-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const date   = document.getElementById('new-date').value;
+        const invest = parseFloat(document.getElementById('new-invest').value);
+        const price  = parseFloat(document.getElementById('new-price').value);
+
+        if (!date || isNaN(invest) || isNaN(price) || invest <= 0 || price <= 0) {
+            alert(i18n.alertMsg);
+            return;
+        }
+
+        entries = [...entries, {
+            id: Date.now(),
+            date,
+            investAmount: invest,
+            btcPrice: price,
+            btcAmount: invest / price
+        }].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        document.getElementById('new-invest').value = '';
+        render();
+    });
+
+    document.getElementById('export-csv').addEventListener('click', function () {
+        const rows = entries.map(e =>
+            `${e.date},${e.investAmount},${e.btcPrice},${fmtCrypto(e.btcAmount)}`
+        );
+        const csv  = [i18n.csvHeaders, ...rows].join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href  = URL.createObjectURL(blob);
+        link.download = 'btc_dca_records.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('new-date').value = today;
+
+    // Initial render
+    render();
+})();
+</script>
+{% endblock %}

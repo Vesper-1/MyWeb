@@ -436,6 +436,95 @@ body {
 }
 
 /* ========================================
+   New Tool Spotlight (Home page)
+   ======================================== */
+.new-tool-section {
+    padding: 0 0 var(--spacing-lg);
+}
+
+.new-tool-banner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(249,115,22,0.03) 100%);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.new-tool-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f97316, #fb923c, transparent);
+}
+
+.new-tool-badge {
+    background: #f97316;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.new-tool-icon {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f97316;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.new-tool-body { flex: 1; min-width: 0; }
+
+.new-tool-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.2rem;
+}
+
+.new-tool-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.new-tool-cta {
+    flex-shrink: 0;
+    background: #f97316;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.55rem 1.2rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.new-tool-cta:hover {
+    background: #ea6c0a;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+}
+
+@media (max-width: 600px) {
+    .new-tool-banner {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .new-tool-badge { order: -1; }
+    .new-tool-cta { width: 100%; text-align: center; }
+}
+
+/* ========================================
    Page Header
    ======================================== */
 .page-header {
@@ -871,6 +960,44 @@ body {
 .project-link {
     color: var(--neon-pink);
     font-weight: 600;
+}
+
+/* Interactive tool card - orange accent */
+.interactive-tool-card {
+    position: relative;
+    border-color: rgba(249, 115, 22, 0.3);
+}
+
+.interactive-tool-card:hover {
+    border-color: #f97316;
+    box-shadow: 0 10px 30px rgba(249, 115, 22, 0.25);
+}
+
+.interactive-tool-card .project-icon {
+    color: #f97316;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.interactive-tool-card .project-name {
+    color: #f97316;
+}
+
+.interactive-tool-card .project-link {
+    color: #f97316;
+}
+
+.new-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: #f97316;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 99px;
 }
 
 .future-placeholder {
