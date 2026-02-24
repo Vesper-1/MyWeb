@@ -1,14 +1,18 @@
 import os
+import sqlite3
 from datetime import datetime
 from pathlib import Path
-from flask import Flask, render_template, abort, request, url_for
+from flask import (Flask, render_template, abort, request, url_for,
+                   session, redirect, jsonify)
+from werkzeug.security import generate_password_hash, check_password_hash
 import frontmatter
 from markdown_it import MarkdownIt
 from mdit_py_plugins.front_matter import front_matter_plugin
-from functools import lru_cache
+from functools import lru_cache, wraps
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Initialize Markdown parser
 md = MarkdownIt('commonmark', {'breaks': True, 'html': True})
@@ -164,6 +168,184 @@ def inject_globals():
     }
 
 
+# ── Database ──────────────────────────────────────────────────
+DB_PATH = Path(__file__).parent / 'instance' / 'dca.db'
+
+
+def get_db():
+    """Return a sqlite3 connection (row_factory = dict)."""
+    DB_PATH.parent.mkdir(exist_ok=True)
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA journal_mode=WAL')
+    return conn
+
+
+def init_db():
+    """Create tables if they don't exist."""
+    conn = get_db()
+    conn.executescript('''
+        CREATE TABLE IF NOT EXISTS users (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            username    TEXT    NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            created_at  TEXT    DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS dca_entries (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id       INTEGER NOT NULL,
+            date          TEXT    NOT NULL,
+            invest_amount REAL    NOT NULL,
+            btc_price     REAL    NOT NULL,
+            btc_amount    REAL    NOT NULL,
+            created_at    TEXT    DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    ''')
+    conn.close()
+
+
+init_db()
+
+
+def login_required(f):
+    """Redirect to auth page if not logged in."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            lang = kwargs.get('lang', 'zh')
+            return redirect(f'/{lang}/auth/?next={request.path}')
+        return f(*args, **kwargs)
+    return decorated
+
+
+# ── Auth Routes ───────────────────────────────────────────────
+@app.route('/<lang>/auth/')
+def auth_page(lang):
+    """Login / Register page."""
+    if lang not in SUPPORTED_LANGS:
+        abort(404)
+    if 'user_id' in session:
+        return redirect(f'/{lang}/toolbox/btc-dca/')
+    return render_template('auth.html', next_url=request.args.get('next', f'/{lang}/toolbox/btc-dca/'))
+
+
+@app.route('/api/auth/register', methods=['POST'])
+def api_register():
+    """Register a new user."""
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
+
+    if not username or not password:
+        return jsonify(ok=False, msg='用户名和密码不能为空 / Username and password required'), 400
+
+    conn = get_db()
+    try:
+        conn.execute(
+            'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+            (username, generate_password_hash(password))
+        )
+        conn.commit()
+        user = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+        session['user_id'] = user['id']
+        session['username'] = username
+        return jsonify(ok=True)
+    except sqlite3.IntegrityError:
+        return jsonify(ok=False, msg='用户名已存在 / Username already taken'), 409
+    finally:
+        conn.close()
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    """Log in an existing user."""
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
+
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+    conn.close()
+
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify(ok=False, msg='用户名或密码错误 / Invalid username or password'), 401
+
+    session['user_id'] = user['id']
+    session['username'] = username
+    return jsonify(ok=True)
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def api_logout():
+    """Log out."""
+    session.clear()
+    return jsonify(ok=True)
+
+
+# ── DCA Entry API ─────────────────────────────────────────────
+@app.route('/api/dca/entries', methods=['GET'])
+def api_get_entries():
+    """Return all DCA entries for the logged-in user."""
+    if 'user_id' not in session:
+        return jsonify(ok=False, msg='Unauthorized'), 401
+    conn = get_db()
+    rows = conn.execute(
+        'SELECT id, date, invest_amount, btc_price, btc_amount '
+        'FROM dca_entries WHERE user_id = ? ORDER BY date DESC',
+        (session['user_id'],)
+    ).fetchall()
+    conn.close()
+    return jsonify(ok=True, entries=[dict(r) for r in rows])
+
+
+@app.route('/api/dca/entries', methods=['POST'])
+def api_add_entry():
+    """Add a new DCA entry."""
+    if 'user_id' not in session:
+        return jsonify(ok=False, msg='Unauthorized'), 401
+    data = request.get_json(silent=True) or {}
+    date = data.get('date')
+    invest = data.get('invest_amount')
+    price  = data.get('btc_price')
+
+    if not date or not invest or not price:
+        return jsonify(ok=False, msg='Missing fields'), 400
+    invest = float(invest)
+    price  = float(price)
+    if invest <= 0 or price <= 0:
+        return jsonify(ok=False, msg='Values must be > 0'), 400
+
+    btc_amount = invest / price
+    conn = get_db()
+    cur = conn.execute(
+        'INSERT INTO dca_entries (user_id, date, invest_amount, btc_price, btc_amount) '
+        'VALUES (?, ?, ?, ?, ?)',
+        (session['user_id'], date, invest, price, btc_amount)
+    )
+    conn.commit()
+    entry_id = cur.lastrowid
+    conn.close()
+    return jsonify(ok=True, entry=dict(id=entry_id, date=date,
+                   invest_amount=invest, btc_price=price, btc_amount=btc_amount))
+
+
+@app.route('/api/dca/entries/<int:entry_id>', methods=['DELETE'])
+def api_delete_entry(entry_id):
+    """Delete a DCA entry (only if owned by current user)."""
+    if 'user_id' not in session:
+        return jsonify(ok=False, msg='Unauthorized'), 401
+    conn = get_db()
+    conn.execute(
+        'DELETE FROM dca_entries WHERE id = ? AND user_id = ?',
+        (entry_id, session['user_id'])
+    )
+    conn.commit()
+    conn.close()
+    return jsonify(ok=True)
+
+
+# ── Existing Routes ───────────────────────────────────────────
 @app.route('/')
 def index():
     """Redirect root to Chinese home."""
@@ -265,11 +447,12 @@ def toolbox(lang):
 
 
 @app.route('/<lang>/toolbox/btc-dca/')
+@login_required
 def btc_dca(lang):
-    """BTC DCA Tracker tool page."""
+    """BTC DCA Tracker tool page (login required)."""
     if lang not in SUPPORTED_LANGS:
         abort(404)
-    return render_template('btc_dca.html')
+    return render_template('btc_dca.html', username=session.get('username', ''))
 
 
 @app.route('/sitemap.xml')

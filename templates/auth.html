@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if lang == 'zh' %}登录 / 注册{% else %}Login / Register{% endif %} - DevHub
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-page {
+        padding: 4rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    .auth-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(0,255,255,0.15);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+    }
+    .auth-card h2 {
+        text-align: center;
+        color: #fff;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+    .auth-card h2 .btc-icon { color: #f97316; }
+
+    /* Tabs */
+    .auth-tabs {
+        display: flex;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 1.5rem;
+    }
+    .auth-tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.6rem 0;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        border-bottom: 2px solid transparent;
+        transition: color 0.2s, border-color 0.2s;
+        background: none;
+        border-top: none; border-left: none; border-right: none;
+    }
+    .auth-tab.active {
+        color: #f97316;
+        border-bottom-color: #f97316;
+    }
+
+    /* Form */
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .auth-field { margin-bottom: 1rem; }
+    .auth-field label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.35rem;
+    }
+    .auth-field input {
+        width: 100%;
+        background: var(--bg-primary);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: #fff;
+        padding: 0.65rem 0.75rem;
+        outline: none;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+    .auth-field input:focus { border-color: #f97316; }
+
+    .auth-submit {
+        width: 100%;
+        background: #f97316;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.7rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .auth-submit:hover { background: #ea6c0a; box-shadow: 0 0 20px rgba(249,115,22,0.35); }
+    .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .auth-error {
+        background: rgba(248,113,113,0.12);
+        color: #f87171;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    .auth-error.show { display: block; }
+
+    .auth-success {
+        background: rgba(52,211,153,0.12);
+        color: #34d399;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    .auth-success.show { display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h2><span class="btc-icon">₿</span> BTC DCA Tracker</h2>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">
+                {% if lang == 'zh' %}登录{% else %}Login{% endif %}
+            </button>
+            <button class="auth-tab" data-tab="register">
+                {% if lang == 'zh' %}注册{% else %}Register{% endif %}
+            </button>
+        </div>
+
+        <div class="auth-error" id="auth-error"></div>
+        <div class="auth-success" id="auth-success"></div>
+
+        <!-- Login Form -->
+        <form class="auth-form active" id="form-login">
+            <div class="auth-field">
+                <label>{% if lang == 'zh' %}用户名{% else %}Username{% endif %}</label>
+                <input type="text" id="login-user" autocomplete="username" required>
+            </div>
+            <div class="auth-field">
+                <label>{% if lang == 'zh' %}密码{% else %}Password{% endif %}</label>
+                <input type="password" id="login-pass" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="auth-submit">
+                {% if lang == 'zh' %}登录{% else %}Login{% endif %}
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form" id="form-register">
+            <div class="auth-field">
+                <label>{% if lang == 'zh' %}用户名{% else %}Username{% endif %}</label>
+                <input type="text" id="reg-user" autocomplete="username" required>
+            </div>
+            <div class="auth-field">
+                <label>{% if lang == 'zh' %}密码{% else %}Password{% endif %}</label>
+                <input type="password" id="reg-pass" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="auth-submit">
+                {% if lang == 'zh' %}注册{% else %}Register{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    const NEXT = '{{ next_url | e }}';
+    const errEl  = document.getElementById('auth-error');
+    const succEl = document.getElementById('auth-success');
+
+    function showErr(msg)  { errEl.textContent = msg; errEl.classList.add('show'); succEl.classList.remove('show'); }
+    function showSucc(msg) { succEl.textContent = msg; succEl.classList.add('show'); errEl.classList.remove('show'); }
+    function clearMsg()    { errEl.classList.remove('show'); succEl.classList.remove('show'); }
+
+    // Tab switching
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('form-' + tab.dataset.tab).classList.add('active');
+            clearMsg();
+        });
+    });
+
+    // Login
+    document.getElementById('form-login').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearMsg();
+        const btn = this.querySelector('.auth-submit');
+        btn.disabled = true;
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('login-user').value.trim(),
+                    password: document.getElementById('login-pass').value
+                })
+            });
+            const data = await res.json();
+            if (data.ok) { window.location.href = NEXT; }
+            else { showErr(data.msg); }
+        } catch { showErr('Network error'); }
+        btn.disabled = false;
+    });
+
+    // Register
+    document.getElementById('form-register').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearMsg();
+        const btn = this.querySelector('.auth-submit');
+        btn.disabled = true;
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('reg-user').value.trim(),
+                    password: document.getElementById('reg-pass').value
+                })
+            });
+            const data = await res.json();
+            if (data.ok) { window.location.href = NEXT; }
+            else { showErr(data.msg); }
+        } catch { showErr('Network error'); }
+        btn.disabled = false;
+    });
+})();
+</script>
+{% endblock %}
